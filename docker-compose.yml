@@ -1,0 +1,58 @@
+services:
+  # Entorno QA
+  mongo_db_qa:
+    image: mongo:latest
+    container_name: mongo_db_qa
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data_qa:/data/db
+
+  go_api_qa:
+    build: .
+    container_name: go_api_qa
+    ports:
+      - "8081:8080"
+    environment:
+      - MONGO_URI=mongodb://mongo_db_qa:27017
+    depends_on:
+      - mongo_db_qa
+
+  frontend_qa:
+    build: ./frontend   # Ruta a tu carpeta React
+    container_name: frontend_qa
+    ports:
+      - "3000:80"
+    depends_on:
+      - go_api_qa
+
+  # Entorno PROD
+  mongo_db_prod:
+    image: mongo:latest
+    container_name: mongo_db_prod
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo_data_prod:/data/db
+
+  go_api_prod:
+    build: .
+    container_name: go_api_prod
+    ports:
+      - "8082:8080"
+    environment:
+      - MONGO_URI=mongodb://mongo_db_prod:27017
+    depends_on:
+      - mongo_db_prod
+
+  frontend_prod:
+    build: ./frontend
+    container_name: frontend_prod
+    ports:
+      - "3001:80"
+    depends_on:
+      - go_api_prod
+
+volumes:
+  mongo_data_qa:
+  mongo_data_prod:
